@@ -1,8 +1,6 @@
 FROM nginx:alpine AS runtime
 
 COPY web/ /usr/share/nginx/html/
-COPY app/manifest.json /usr/share/nginx/html/manifest.json
-COPY app/sw.js /usr/share/nginx/html/sw.js
 
 COPY docker/nginx.conf /etc/nginx/templates/default.conf.template
 

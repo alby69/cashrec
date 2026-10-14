@@ -1,3 +1,21 @@
+export const APP_MODE = window.__CASHREC_MODE__ || 'web';
+export const APP_VERSION = '6.0.0';
+
+export const MODE_CONFIGS = {
+    standalone: {
+        badgeText: '100% Client-Side',
+        versionLabel: `v${APP_VERSION} Standalone HTML App — 100% Client-Side & Privacy First`,
+        pdfFooter: 'Generato con CashRec Standalone App • 100% Client-Side'
+    },
+    web: {
+        badgeText: 'Render Web App',
+        versionLabel: `v${APP_VERSION} Web App — Render Dual Mode`,
+        pdfFooter: 'Generato con CashRec Web App • 100% Client-Side'
+    }
+};
+
+export const CURRENT_MODE_CONFIG = MODE_CONFIGS[APP_MODE] || MODE_CONFIGS.web;
+
 export const DEFAULT_CONFIG = {
     common: {
         algorithm: "progressive_balance",

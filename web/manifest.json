@@ -1,8 +1,8 @@
 {
-  "name": "CashRec - Riconciliazione Cassa Standalone",
+  "name": "CashRec - Riconciliazione Cassa Web App",
   "short_name": "CashRec",
   "description": "Riconciliazione automatica degli incassi di cassa con i versamenti bancari. 100% client-side, offline e privacy-first.",
-  "start_url": "./app/cashrec.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#0f2b5c",

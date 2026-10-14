@@ -1,6 +1,7 @@
-import { DEFAULT_CONFIG, DEFAULT_PROFILES, I18N_TRANSLATIONS } from './config.js';
+import { DEFAULT_CONFIG, DEFAULT_PROFILES, I18N_TRANSLATIONS, CURRENT_MODE_CONFIG } from './config.js';
 import { CashRecDB } from './history.js';
 import { initPWA } from './pwa.js';
+import { createWorker } from './worker-factory.js';
 import {
     injectFavicon, showToast, customConfirm, customPrompt,
     renderKPIDashboard, renderMatchBadges, renderMonthlyChart,
@@ -250,9 +251,21 @@ function populateForm(params) {
     }
 }
 
+function initializeModeUI() {
+    const badgeEl = document.querySelector('#resultContainer .badge');
+    if (badgeEl) {
+        badgeEl.textContent = CURRENT_MODE_CONFIG.badgeText;
+    }
+    const versionLabelEl = document.querySelector('.container > .text-center.text-muted.small');
+    if (versionLabelEl) {
+        versionLabelEl.textContent = CURRENT_MODE_CONFIG.versionLabel;
+    }
+}
+
 function initializeForm() {
     populateForm(CONFIG.common);
     renderProfileSelect();
+    initializeModeUI();
 }
 
 function showError(phase, message) {
@@ -288,6 +301,9 @@ document.getElementById('tableSortSelect')?.addEventListener('change', updateAno
 
 document.getElementById('btnCancel')?.addEventListener('click', function() {
     if (currentWorker) {
+        if (currentWorker.__blobUrl) {
+            URL.revokeObjectURL(currentWorker.__blobUrl);
+        }
         currentWorker.terminate();
         currentWorker = null;
     }
@@ -346,10 +362,13 @@ document.getElementById('uploadForm')?.addEventListener('submit', async function
         const fileBuffer = await file.arrayBuffer();
 
         if (currentWorker) {
+            if (currentWorker.__blobUrl) {
+                URL.revokeObjectURL(currentWorker.__blobUrl);
+            }
             currentWorker.terminate();
         }
 
-        currentWorker = new Worker('/static/js/worker.js');
+        currentWorker = createWorker();
 
         currentWorker.onmessage = function(e) {
             const { type, percent, statusText, phase, message, reportBlob, reportFilename, fullLogText: workerLog, stats, dashboardData } = e.data;
@@ -359,6 +378,8 @@ document.getElementById('uploadForm')?.addEventListener('submit', async function
             } else if (type === 'success') {
                 generatedReportBlob = reportBlob;
                 generatedReportFilename = reportFilename;
+                window.generatedReportBlob = reportBlob;
+                window.generatedReportFilename = reportFilename;
                 fullLogText = workerLog;
                 log.textContent = fullLogText;
 
@@ -368,6 +389,7 @@ document.getElementById('uploadForm')?.addEventListener('submit', async function
                     renderMonthlyChart(dashboardData.monthlyBalance);
                     renderAnomaliesTable(dashboardData.tableItems);
                 }
+                initializeModeUI();
 
                 CashRecDB.saveRun({
                     fileName: file.name,
@@ -379,11 +401,17 @@ document.getElementById('uploadForm')?.addEventListener('submit', async function
                 progress.classList.add('d-none');
                 btn.disabled = false;
                 result.classList.remove('d-none');
+                if (currentWorker.__blobUrl) {
+                    URL.revokeObjectURL(currentWorker.__blobUrl);
+                }
                 currentWorker = null;
             } else if (type === 'error') {
                 progress.classList.add('d-none');
                 btn.disabled = false;
                 showError(phase || "Elaborazione", message);
+                if (currentWorker.__blobUrl) {
+                    URL.revokeObjectURL(currentWorker.__blobUrl);
+                }
                 currentWorker = null;
             }
         };
@@ -392,6 +420,9 @@ document.getElementById('uploadForm')?.addEventListener('submit', async function
             progress.classList.add('d-none');
             btn.disabled = false;
             showError("Web Worker Error", err.message || "Errore sconosciuto nel Web Worker.");
+            if (currentWorker.__blobUrl) {
+                URL.revokeObjectURL(currentWorker.__blobUrl);
+            }
             currentWorker = null;
         };
 
@@ -465,7 +496,7 @@ document.getElementById('btnDownloadPDF')?.addEventListener('click', async funct
         <h4 style="font-size: 1.1rem; color: #0f2b5c; margin-top: 20px; margin-bottom: 10px;">Quadratura Mensile</h4>
         ${chartImgHtml}
         <div style="margin-top: 20px; font-size: 0.75rem; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 8px;">
-            Generato con CashRec Web App • 100% Client-Side
+            ${CURRENT_MODE_CONFIG.pdfFooter}
         </div>
     `;
 
