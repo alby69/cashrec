@@ -18,7 +18,7 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent.parent
 MANUAL = ROOT / "docs" / "MANUALE_UTENTE.md"
-TARGETS = [ROOT / "app" / "cashrec.html"]
+TARGETS = [ROOT / "web" / "index.html"]
 
 START = "<!-- HELP_MANUAL_START -->"
 END = "<!-- HELP_MANUAL_END -->"

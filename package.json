@@ -1,14 +1,15 @@
 {
   "name": "cashrec",
   "version": "6.0.0",
-  "description": "CashRec confronta gli **incassi di cassa** di un punto vendita con i **versamenti in banca**, li abbina tra loro e genera un report Excel che evidenzia le differenze da verificare. Dual mode: Standalone HTML e Web App su Render.",
-  "main": "test_worker.spec.js",
+  "description": "CashRec - Smart Cash Reconciliation (Dual Mode: Standalone HTML e Web App)",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
     "test": "npx playwright test",
-    "test:e2e": "npx playwright test"
+    "test:e2e": "npx playwright test",
+    "build:standalone": "node tools/build_standalone.js",
+    "check:standalone": "node tools/build_standalone.js --check"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,8 @@
   },
   "homepage": "https://github.com/alby69/cashrec#readme",
   "devDependencies": {
-    "@playwright/test": "^1.62.1"
+    "@playwright/test": "^1.62.1",
+    "esbuild": "^0.25.0",
+    "http-server": "^14.1.1"
   }
 }
